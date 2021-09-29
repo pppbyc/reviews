@@ -76,9 +76,7 @@ const updateReviewHelpful = (req, res) => {
     res.status(200).send('update helpfulness!');
   });
 };
-// const updateReviewHelpful = (req, res) => {
 
-// }
 
 // const updateReviewReport = (req, res) => {
 

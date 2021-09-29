@@ -5,20 +5,22 @@ CREATE DATABASE sdc;
 \c sdc;
 
 
-DROP TABLE IF EXISTS product;
-CREATE TABLE product (
-  id SERIAL,
-  "name" VARCHAR(255),
-  slogan TEXT,
-  "description" TEXT,
-  category VARCHAR(50),
-  default_price INTEGER,
-  PRIMARY KEY (id)
-);
+-- DROP TABLE IF EXISTS product;
+-- CREATE TABLE product (
+--   id INTEGER,
+--   "name" VARCHAR(255),
+--   slogan TEXT,
+--   "description" TEXT,
+--   category VARCHAR(50),
+--   default_price INTEGER,
+--   PRIMARY KEY (id)
+-- );
+
+
 
 DROP TABLE IF EXISTS reviews;
 CREATE TABLE reviews (
-  id SERIAL,
+  id INTEGER,
   product_id INTEGER NOT NULL,
   rating INTEGER NOT NULL,
   "date" BIGINT,
@@ -33,39 +35,41 @@ CREATE TABLE reviews (
   PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS reviews_photo;
-CREATE TABLE reviews_photo (
-  id SERIAL,
-  review_id INTEGER,
-  "url" TEXT,
-  PRIMARY KEY (id)
-);
+\COPY reviews FROM '/Users/Yingchen/Desktop/Hack_Reactor/reviews/csv/reviews.csv' CSV HEADER;
 
-DROP TABLE IF EXISTS characterstic;
-CREATE TABLE characteristics (
-  id SERIAL,
-  product_id INTEGER,
-  "name" VARCHAR(50),
-  PRIMARY KEY (id)
-);
+-- DROP TABLE IF EXISTS reviews_photo;
+-- CREATE TABLE reviews_photo (
+--   id INTEGER,
+--   review_id INTEGER,
+--   "url" TEXT,
+--   PRIMARY KEY (id)
+-- );
 
-DROP TABLE IF EXISTS characteristic_reviews;
-CREATE TABLE characteristic_reviews (
-  id SERIAL,
-  characteristic_id INTEGER,
-  review_id INTEGER,
-  "value" INTEGER,
-  PRIMARY KEY (id)
-);
+-- DROP TABLE IF EXISTS characterstic;
+-- CREATE TABLE characteristics (
+--   id INTEGER,
+--   product_id INTEGER,
+--   "name" VARCHAR(50),
+--   PRIMARY KEY (id)
+-- );
+
+-- DROP TABLE IF EXISTS characteristic_reviews;
+-- CREATE TABLE characteristic_reviews (
+--   id INTEGER,
+--   characteristic_id INTEGER,
+--   review_id INTEGER,
+--   "value" INTEGER,
+--   PRIMARY KEY (id)
+-- );
 
 
 
 
-ALTER TABLE reviews ADD FOREIGN KEY (product_id) REFERENCES product (id);
--- ALTER TABLE reviews_photo ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
-ALTER TABLE characteristics ADD FOREIGN KEY (product_id) REFERENCES product (id);
-ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
-ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
+-- ALTER TABLE reviews ADD FOREIGN KEY (product_id) REFERENCES product (id);
+-- -- ALTER TABLE reviews_photo ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
+-- ALTER TABLE characteristics ADD FOREIGN KEY (product_id) REFERENCES product (id);
+-- ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
+-- ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
 
 \dt
 
