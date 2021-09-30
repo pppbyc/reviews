@@ -11,8 +11,10 @@ app.use(cors());
 
 
 app.get('/reviews', controller.getReviews);
-// app.get('/reviews/meta', controller.getReviewsMeta);
+app.get('/reviews/meta', controller.getReviewsMeta);
 app.put('/reviews/:id/helpful', controller.updateReviewHelpful);
+app.put('/reviews/:id/report', controller.updateReviewReport);
+app.post('/reviews', controller.postReview);
 
 app.listen(port, function() {
   console.log(`listening on port ${port}`);

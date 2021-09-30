@@ -11,13 +11,13 @@ const pool = new Pool({
   port: 5432,
 })
 
-fs.createReadStream(path.resolve(__dirname, '../data/reviews.csv'))
+fs.createReadStream(path.resolve(__dirname, '../csv/reviews.csv'))
   .pipe(csv.parse({ headers: true }))
   .on('error', error => console.error(error))
   .on('data', row => {
     console.log(row)
     const query = 'INSERT INTO reviews(id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness ) VALUES($1, $2, $3, $4, $5, $6, $7, $8)';
-    const values = [Number(row.id), Number(row.product_id), Number(row.rating), new Date(Number(row.date)), row.summary, row.body, !!Number(row.recommend), !!Number(row.reported), row.reviewer_name, row.reviewer_email, row.response, Number(row.helpful), ];
+    const values = [Number(row.id), Number(row.product_id), Number(row.rating), new Date(Number(row.date)), row.summary, row.body, !!Number(row.recommend), !!Number(row.reported), row.reviewer_name, row.reviewer_email, row.response, Number(row.helpful)];
     // console.log(values);
     pool.query(query, values, (err, res) => {
       if (err) console.error(err)

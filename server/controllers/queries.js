@@ -9,7 +9,7 @@ const pool = new Pool({
 })
 
 const handleParam = (param, defaultValue) => {
-  console.log(param);
+  // console.log(param);
   if (param === undefined) {
     return defaultValue;
   } else {
@@ -26,7 +26,7 @@ const getReviews = (req, res) => {
 
   const query = `SELECT t1.review_id, t1.rating, t1.summary, t1.recommend, t1.response, t1.body, t1.date, t1.reviewer_name, t1.helpfulness, t2.photos FROM
   (SELECT id as review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id = $1 and reported = false ORDER BY ${sort}) AS t1
-  LEFT JOIN (SELECT review_id, url as photos FROM reviews_photo ) AS t2
+  LEFT JOIN (SELECT review_id, url as photos FROM reviews_photos) AS t2
   on t1.review_id = t2.review_id`;
 
   pool.query(query, [productId], (err, results) => {
@@ -50,23 +50,23 @@ const getReviews = (req, res) => {
 
 
 
-// const getReviewsMeta = (req, res) => {
-//   // console.log(typeof (req.query.product_id));
-//   const productId = parseInt(req.query.product_id, 10);
-//   // console.log(productId)
-//   const sqlQuery = 'select * from characterstics where product_id = $1';
+const getReviewsMeta = (req, res) => {
+  // console.log(typeof (req.query.product_id));
+  const productId = parseInt(req.query.product_id, 10);
+  // console.log(productId)
+  const sqlQuery = 'select * from characteristics where product_id = $1';
 
-//   pool.query(sqlQuery, [productId], (err, results) => {
-//     if (err) {
-//       throw err;
-//     }
-//     res.status(200).json(results.rows[0]);
-//   });
-// };
+  pool.query(sqlQuery, [productId], (err, results) => {
+    if (err) {
+      throw err;
+    }
+    res.status(200).json(results.rows[0]);
+  });
+};
 
 const updateReviewHelpful = (req, res) => {
-  console.log(req.params.id);
-  const id = parseInt(req.params.id, 10);
+  console.log('review_id', req.params.id);
+  const id = Number(req.params.id);
   const { helpfulness } = req.body;
   const query = 'UPDATE reviews SET helpfulness = helpfulness+1 WHERE id = $1'
   pool.query(query, [id], (err) => {
@@ -78,18 +78,57 @@ const updateReviewHelpful = (req, res) => {
 };
 
 
-// const updateReviewReport = (req, res) => {
+const updateReviewReport = (req, res) => {
+  const id = Number(req.params.id);
+  pool.query('UPDATE reviews SET reported = true WHERE id = $1', [id], (err) => {
+    if (err) {
+      throw err;
+    }
+    res.status(200).send('reported!');
+  });
+}
 
-// }
+const postReview = (req, res) => {
+  const {
+    product_id, rating, summary, body, recommend, name, email, photos, characteristics,
+  } = req.body;
+  const date = new Date().getTime();
+  const params = [product_id, rating, date, summary, body, recommend, name, email];
+  console.log(params);
+  pool.query('INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id', params, (err, results) => {
+    if (err) {
+      throw err;
+    }
+    const reviewId = results.rows[0].id;
+    // console.log(results.rows[0].id);
+    // insert into review photo
+    if (photos.length) {
+      photos.forEach((url) => {
+        pool.query('INSERT INTO reviews_photo(review_id, url) VALUES($1, $2)', [reviewId, url], (errphoto) => {
+          if (errphoto) {
+            throw errphoto;
+          }
+          // res.status(200).send('ok');
+        });
+      });
+    }
 
-// const postReview = (req, res) => {
-
-// }
+    //insert into the characteristics_reviews
+    Object.keys(characteristics).forEach((key) => {
+      pool.query('INSERT INTO characteristics_reviews(review_id, characteristic_id) VALUES($1, $2)', [reviewId, key], (charError) => {
+        if (charError) {
+          throw charError;
+        }
+      });
+    });
+    res.status(200).send('ok');
+  });
+};
 
 module.exports = {
   getReviews,
-  // getReviewsMeta,
+  getReviewsMeta,
   updateReviewHelpful,
-  // updateReviewReport,
-  // postReview,
+  updateReviewReport,
+  postReview,
 };
