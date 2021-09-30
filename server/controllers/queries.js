@@ -26,7 +26,7 @@ const getReviews = (req, res) => {
 
   const query = `SELECT t1.review_id, t1.rating, t1.summary, t1.recommend, t1.response, t1.body, t1.date, t1.reviewer_name, t1.helpfulness, t2.photos FROM
   (SELECT id as review_id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness FROM reviews WHERE product_id = $1 and reported = false ORDER BY ${sort}) AS t1
-  LEFT JOIN (SELECT review_id, url as photos FROM reviews_photos) AS t2
+  LEFT JOIN (SELECT review_id, json_agg(json_build_object('id', id, 'url', "url")) as photos FROM reviews_photos GROUP BY review_id) AS t2
   on t1.review_id = t2.review_id`;
 
   pool.query(query, [productId], (err, results) => {
@@ -52,9 +52,9 @@ const getReviews = (req, res) => {
 
 const getReviewsMeta = (req, res) => {
   // console.log(typeof (req.query.product_id));
-  const productId = parseInt(req.query.product_id, 10);
-  // console.log(productId)
-  const sqlQuery = 'select * from characteristics where product_id = $1';
+  const productId = Number(req.query.product_id);
+  console.log('getReviewsMeta', productId)
+  const sqlQuery = 'select * from reviews_meta where product_id = $1';
 
   pool.query(sqlQuery, [productId], (err, results) => {
     if (err) {
@@ -90,9 +90,10 @@ const updateReviewReport = (req, res) => {
 
 const postReview = (req, res) => {
   const {
-    product_id, rating, summary, body, recommend, name, email, photos, characteristics,
+    id, product_id, rating, summary, body, recommend, name, email, photos, characteristics,
   } = req.body;
   const date = new Date().getTime();
+
   const params = [product_id, rating, date, summary, body, recommend, name, email];
   console.log(params);
   pool.query('INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id', params, (err, results) => {
@@ -100,7 +101,7 @@ const postReview = (req, res) => {
       throw err;
     }
     const reviewId = results.rows[0].id;
-    // console.log(results.rows[0].id);
+    console.log('reviewid', reviewId);
     // insert into review photo
     if (photos.length) {
       photos.forEach((url) => {
@@ -108,13 +109,14 @@ const postReview = (req, res) => {
           if (errphoto) {
             throw errphoto;
           }
-          // res.status(200).send('ok');
+          res.status(200).send('ok');
         });
       });
     }
 
     //insert into the characteristics_reviews
     Object.keys(characteristics).forEach((key) => {
+    console.log('key',key);
       pool.query('INSERT INTO characteristics_reviews(review_id, characteristic_id) VALUES($1, $2)', [reviewId, key], (charError) => {
         if (charError) {
           throw charError;

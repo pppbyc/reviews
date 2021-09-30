@@ -7,7 +7,7 @@ CREATE DATABASE sdc;
 
 -- DROP TABLE IF EXISTS product;
 -- CREATE TABLE product (
---   id INTEGER,
+--   id SERIAL,
 --   "name" VARCHAR(255),
 --   slogan TEXT,
 --   "description" TEXT,
@@ -16,7 +16,7 @@ CREATE DATABASE sdc;
 --   PRIMARY KEY (id)
 -- );
 
-
+-- \COPY product FROM '/Users/Yingchen/Desktop/Hack_Reactor/reviews/csv/product.csv' CSV HEADER;
 
 DROP TABLE IF EXISTS reviews;
 CREATE TABLE reviews (
@@ -70,10 +70,10 @@ CREATE TABLE characteristics_reviews (
 
 
 -- ALTER TABLE reviews ADD FOREIGN KEY (product_id) REFERENCES product (id);
--- -- ALTER TABLE reviews_photo ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
+-- ALTER TABLE reviews_photos ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
 -- ALTER TABLE characteristics ADD FOREIGN KEY (product_id) REFERENCES product (id);
--- ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
--- ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
+-- ALTER TABLE characteristics_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
+-- ALTER TABLE characteristics_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
 
 \dt
 
@@ -104,7 +104,24 @@ INNER JOIN (
 ) AS t3 ON t3.product_id = t1.product_id;
 
 
+SELECT MAX(id) FROM reviews;
+select nextval('reviews_id_seq');
+BEGIN;
+LOCK TABLE reviews IN EXCLUSIVE MODE;
+SELECT setval('reviews_id_seq', COALESCE((SELECT MAX(id)+1 FROM reviews), 1), false);
+COMMIT;
 
+BEGIN;
+LOCK TABLE reviews_photos IN EXCLUSIVE MODE;
+SELECT setval('reviews_photos_id_seq', COALESCE((SELECT MAX(id)+1 FROM reviews_photos), 1), false);
+COMMIT;
+
+SELECT MAX(id) FROM characteristics_reviews;
+select nextval('characteristics_reviews_id_seq');
+BEGIN;
+LOCK TABLE reviews IN EXCLUSIVE MODE;
+SELECT setval('characteristics_reviews_id_seq', COALESCE((SELECT MAX(id)+1 FROM characteristics_reviews), 1), false);
+COMMIT;
 
 CREATE INDEX idx_product_id
 ON reviews(product_id);
