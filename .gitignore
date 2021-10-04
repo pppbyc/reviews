@@ -2,3 +2,6 @@
 node_modules
 package-lock.json
 csv
+newrelic_agent.log
+sdc.pem
+newrelic.js
