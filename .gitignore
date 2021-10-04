@@ -4,4 +4,5 @@ package-lock.json
 csv
 newrelic_agent.log
 sdc.pem
+deploy.pem
 newrelic.js
