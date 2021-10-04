@@ -12,18 +12,18 @@ CREATE DATABASE sdc
 \c sdc;
 
 
-DROP TABLE IF EXISTS product;
-CREATE TABLE product (
-  id SERIAL,
-  "name" VARCHAR(255),
-  slogan TEXT,
-  "description" TEXT,
-  category VARCHAR(50),
-  default_price INTEGER,
-  PRIMARY KEY (id)
-);
+-- DROP TABLE IF EXISTS product;
+-- CREATE TABLE product (
+--   id SERIAL,
+--   "name" VARCHAR(255),
+--   slogan TEXT,
+--   "description" TEXT,
+--   category VARCHAR(50),
+--   default_price INTEGER,
+--   PRIMARY KEY (id)
+-- );
 
-\COPY product FROM '/Users/Yingchen/Desktop/Hack_Reactor/reviews/csv/product.csv' CSV HEADER;
+-- \COPY product FROM '/Users/Yingchen/Desktop/Hack_Reactor/reviews/csv/product.csv' CSV HEADER;
 
 DROP TABLE IF EXISTS reviews;
 CREATE TABLE reviews (
