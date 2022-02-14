@@ -1,5 +1,6 @@
 # reviews
-Build a Ratings and Reviews RESTful API
+A rating and reviews RESTful service for a retail web app with optimized performance to handle heavy traffic load
+
 
 # stack
 <a>
